@@ -59,7 +59,11 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
-                return FadeInRight(child: _Slide(movie: widget.movies[index]));
+                return FadeInRight(
+                    child: _Slide(
+                  movie: widget.movies[index],
+                  name: widget.title,
+                ));
               },
             ),
           ),
@@ -70,9 +74,10 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
 }
 
 class _Slide extends StatelessWidget {
-  const _Slide({required this.movie});
+  const _Slide({required this.movie, this.name});
 
   final Movie movie;
+  final String? name;
 
   @override
   Widget build(BuildContext context) {
@@ -86,25 +91,29 @@ class _Slide extends StatelessWidget {
           // Image
           SizedBox(
             width: 150,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                movie.posterPath,
-                fit: BoxFit.cover,
-                width: 150,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress != null) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
+            child: Hero(
+              tag: '${Utils.slugify(name!)}${movie.id}',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  movie.posterPath,
+                  fit: BoxFit.cover,
+                  width: 150,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress != null) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      );
+                    }
+                    return GestureDetector(
+                      onTap: () =>
+                          context.push('/home/0/movie/${movie.id}', extra: name != null ? Utils.slugify(name!) : null),
+                      child: FadeIn(child: child),
                     );
-                  }
-                  return GestureDetector(
-                    onTap: () => context.push('/home/0/movie/${movie.id}'),
-                    child: FadeIn(child: child),
-                  );
-                },
+                  },
+                ),
               ),
             ),
           ),

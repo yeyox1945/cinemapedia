@@ -6,10 +6,11 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import '../../providers/providers.dart';
 
 class MovieScreen extends ConsumerStatefulWidget {
-  const MovieScreen({super.key, required this.movieId});
+  const MovieScreen({super.key, required this.movieId, this.heroPrefix});
 
   static const name = 'movie-screen';
   final String movieId;
+  final String? heroPrefix;
 
   @override
   MovieScreenState createState() => MovieScreenState();
@@ -27,6 +28,7 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   @override
   Widget build(BuildContext context) {
     final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
+    print(widget.heroPrefix);
 
     return Scaffold(
       body: movie == null
@@ -41,7 +43,10 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
                 _CustomSliverAppbar(movie: movie),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MovieDetails(movie: movie),
+                    (context, index) => _MovieDetails(
+                      movie: movie,
+                      heroPrefix: widget.heroPrefix,
+                    ),
                     childCount: 1,
                   ),
                 ),
@@ -73,7 +78,7 @@ class _CustomSliverAppbar extends ConsumerWidget {
       actions: [
         IconButton(
           onPressed: () async {
-            await ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+            await ref.read(favoriteMoviesProvider.notifier).toggleFavorite(movie);
 
             ref.invalidate(isFavoriteProvider(movie.id));
           },
@@ -163,13 +168,13 @@ class _CustomGradient extends StatelessWidget {
 }
 
 class _MovieDetails extends StatelessWidget {
-  const _MovieDetails({required this.movie});
+  const _MovieDetails({required this.movie, this.heroPrefix});
 
   final Movie movie;
+  final String? heroPrefix;
 
   @override
   Widget build(BuildContext context) {
-    // final colors = Theme.of(context).colorScheme;
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
@@ -182,11 +187,14 @@ class _MovieDetails extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  movie.posterPath,
-                  width: size.width * 0.3,
+              Hero(
+                tag: '$heroPrefix-${movie.id}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    movie.posterPath,
+                    width: size.width * 0.3,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),

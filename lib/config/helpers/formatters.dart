@@ -11,3 +11,9 @@ class HumanFormats {
     return formattedNumber;
   }
 }
+
+class Utils {
+  static String slugify(String value) {
+    return value.toLowerCase().replaceAll(' ', '-');
+  }
+}

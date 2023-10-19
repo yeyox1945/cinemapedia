@@ -20,9 +20,13 @@ final appRouter = GoRouter(
           name: MovieScreen.name,
           builder: (context, state) {
             final movieId = state.pathParameters['id'] ?? 'no-id';
+            final String heroTag = state.extra.toString();
+
+            print(heroTag);
 
             return MovieScreen(
               movieId: movieId,
+              heroPrefix: heroTag,
             );
           },
         ),
