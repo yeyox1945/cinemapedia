@@ -92,7 +92,7 @@ class _Slide extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Hero(
-              tag: '${Utils.slugify(name!)}${movie.id}',
+              tag: '${Utils.slugify(name!)}-${movie.id}',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Image.network(
