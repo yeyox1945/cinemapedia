@@ -19,7 +19,7 @@ class MoviesSlideshow extends StatelessWidget {
         width: double.infinity,
         child: Swiper(
           viewportFraction: 0.8,
-          scale: 0.9,
+          scale: 0.8,
           autoplay: true,
           pagination: SwiperPagination(
               margin: const EdgeInsets.only(top: 0),
@@ -46,8 +46,8 @@ class _Slide extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       boxShadow: const [
         BoxShadow(
-          color: Colors.black38,
-          blurRadius: 10,
+          color: Colors.black12,
+          blurRadius: 5,
           offset: Offset(0, 10),
         ),
       ],

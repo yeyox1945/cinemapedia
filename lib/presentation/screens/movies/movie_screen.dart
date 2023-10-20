@@ -6,10 +6,11 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import '../../providers/providers.dart';
 
 class MovieScreen extends ConsumerStatefulWidget {
-  const MovieScreen({super.key, required this.movieId});
+  const MovieScreen({super.key, required this.movieId, this.heroPrefix});
 
   static const name = 'movie-screen';
   final String movieId;
+  final String? heroPrefix;
 
   @override
   MovieScreenState createState() => MovieScreenState();
@@ -27,6 +28,7 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   @override
   Widget build(BuildContext context) {
     final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
+    print(widget.heroPrefix);
 
     return Scaffold(
       body: movie == null
@@ -41,7 +43,10 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
                 _CustomSliverAppbar(movie: movie),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MovieDetails(movie: movie),
+                    (context, index) => _MovieDetails(
+                      movie: movie,
+                      heroPrefix: widget.heroPrefix,
+                    ),
                     childCount: 1,
                   ),
                 ),
@@ -51,19 +56,46 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   }
 }
 
-class _CustomSliverAppbar extends StatelessWidget {
+final isFavoriteProvider = FutureProvider.family.autoDispose((ref, int movieId) {
+  final localStorageRepository = ref.watch(localStorageRepositoryProvider);
+  return localStorageRepository.isMovieFavorite(movieId);
+});
+
+class _CustomSliverAppbar extends ConsumerWidget {
   const _CustomSliverAppbar({required this.movie});
 
   final Movie movie;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
+    final isFavoriteFuture = ref.watch(isFavoriteProvider(movie.id));
 
     return SliverAppBar(
       backgroundColor: Colors.black,
-      expandedHeight: size.height * 0.5,
+      expandedHeight: size.height * 0.7,
       foregroundColor: Colors.white,
+      actions: [
+        IconButton(
+          onPressed: () async {
+            await ref.read(favoriteMoviesProvider.notifier).toggleFavorite(movie);
+
+            ref.invalidate(isFavoriteProvider(movie.id));
+          },
+          icon: isFavoriteFuture.when(
+            data: (isFavorite) => isFavorite
+                ? const Icon(
+                    Icons.favorite_rounded,
+                    color: Colors.red,
+                  )
+                : const Icon(Icons.favorite_border),
+            error: (_, __) => throw UnimplementedError(),
+            loading: () => const CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          ),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.symmetric(
           horizontal: 10,
@@ -87,22 +119,17 @@ class _CustomSliverAppbar extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox.expand(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 0.5, 1.0],
-                    colors: [
-                      Colors.black26,
-                      Colors.transparent,
-                      Colors.black87,
-                    ],
-                  ),
-                ),
-              ),
-            )
+            _CustomGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: const [
+                Colors.black38,
+                Colors.transparent,
+                Colors.transparent,
+                Colors.black54,
+              ],
+              stops: const [0.0, 0.2, 0.7, 1.0],
+            ),
           ],
         ),
       ),
@@ -110,16 +137,48 @@ class _CustomSliverAppbar extends StatelessWidget {
   }
 }
 
-class _MovieDetails extends StatelessWidget {
-  const _MovieDetails({required this.movie});
+class _CustomGradient extends StatelessWidget {
+  const _CustomGradient({
+    required this.begin,
+    required this.end,
+    required this.stops,
+    required this.colors,
+  }) : assert(stops.length == colors.length, '"stops" and "colors" lengths must be the same');
 
-  final Movie movie;
+  final AlignmentGeometry begin;
+  final AlignmentGeometry end;
+  final List<double> stops;
+  final List<Color> colors;
 
   @override
   Widget build(BuildContext context) {
-    // final colors = Theme.of(context).colorScheme;
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: begin,
+            end: end,
+            stops: stops,
+            colors: colors,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MovieDetails extends StatelessWidget {
+  const _MovieDetails({required this.movie, this.heroPrefix});
+
+  final Movie movie;
+  final String? heroPrefix;
+
+  @override
+  Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
+
+    print('$heroPrefix-${movie.id}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,11 +189,14 @@ class _MovieDetails extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  movie.posterPath,
-                  width: size.width * 0.3,
+              Hero(
+                tag: '$heroPrefix-${movie.id}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    movie.posterPath,
+                    width: size.width * 0.3,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
