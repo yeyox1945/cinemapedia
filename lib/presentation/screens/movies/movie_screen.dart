@@ -178,8 +178,6 @@ class _MovieDetails extends StatelessWidget {
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
-    print('$heroPrefix-${movie.id}');
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
