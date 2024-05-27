@@ -1,5 +1,7 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cinemapedia/presentation/blocs/actor/actor_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 
@@ -22,13 +24,12 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
     super.initState();
 
     ref.read(movieInfoProvider.notifier).loadMovie(widget.movieId);
-    ref.read(actorsByMovieProvider.notifier).loadActors(widget.movieId);
+    context.read<ActorBloc>().add(GetActorsByMovieEvent(widget.movieId));
   }
 
   @override
   Widget build(BuildContext context) {
     final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
-    print(widget.heroPrefix);
 
     return Scaffold(
       body: movie == null
@@ -56,7 +57,8 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   }
 }
 
-final isFavoriteProvider = FutureProvider.family.autoDispose((ref, int movieId) {
+final isFavoriteProvider =
+    FutureProvider.family.autoDispose((ref, int movieId) {
   final localStorageRepository = ref.watch(localStorageRepositoryProvider);
   return localStorageRepository.isMovieFavorite(movieId);
 });
@@ -78,7 +80,9 @@ class _CustomSliverAppbar extends ConsumerWidget {
       actions: [
         IconButton(
           onPressed: () async {
-            await ref.read(favoriteMoviesProvider.notifier).toggleFavorite(movie);
+            await ref
+                .read(favoriteMoviesProvider.notifier)
+                .toggleFavorite(movie);
 
             ref.invalidate(isFavoriteProvider(movie.id));
           },
@@ -143,7 +147,8 @@ class _CustomGradient extends StatelessWidget {
     required this.end,
     required this.stops,
     required this.colors,
-  }) : assert(stops.length == colors.length, '"stops" and "colors" lengths must be the same');
+  }) : assert(stops.length == colors.length,
+            '"stops" and "colors" lengths must be the same');
 
   final AlignmentGeometry begin;
   final AlignmentGeometry end;
@@ -253,13 +258,12 @@ class _ActorsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final actorsByMovie = ref.watch(actorsByMovieProvider);
+    final actorsState = context.watch<ActorBloc>().state;
+    final actors = actorsState.actors;
 
-    if (actorsByMovie[movieId] == null) {
+    if (actorsState.status == ActorStatus.initial) {
       return const CircularProgressIndicator(strokeWidth: 2);
     }
-
-    final actors = actorsByMovie[movieId]!;
 
     return SizedBox(
       height: 300,
