@@ -1,5 +1,5 @@
-import 'package:cinemapedia/infrastructure/mappers/movie_mapper.dart';
-import 'package:cinemapedia/infrastructure/models/moviedb/moviedb_response.dart';
+import 'package:cinemapedia/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/data/models/moviedb/moviedb_response.dart';
 import 'package:dio/dio.dart';
 import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/domain/datasources/movies_datasource.dart';
@@ -8,7 +8,8 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import '../models/moviedb/movie_details_response.dart';
 
 class MovieDbDatasource extends MoviesDatasource {
-  final dio = Dio(BaseOptions(baseUrl: 'https://api.themoviedb.org/3', queryParameters: {
+  final dio = Dio(
+      BaseOptions(baseUrl: 'https://api.themoviedb.org/3', queryParameters: {
     'api_key': Environment.movieDbKey,
     'language': 'es-MX',
   }));
@@ -26,28 +27,32 @@ class MovieDbDatasource extends MoviesDatasource {
 
   @override
   Future<List<Movie>> getNowPlaying({int page = 1}) async {
-    final resp = await dio.get('/movie/now_playing', queryParameters: {'page': page});
+    final resp =
+        await dio.get('/movie/now_playing', queryParameters: {'page': page});
 
     return _jsonToMovies(resp.data);
   }
 
   @override
   Future<List<Movie>> getPopular({int page = 1}) async {
-    final resp = await dio.get('/movie/popular', queryParameters: {'page': page});
+    final resp =
+        await dio.get('/movie/popular', queryParameters: {'page': page});
 
     return _jsonToMovies(resp.data);
   }
 
   @override
   Future<List<Movie>> getTopRated({int page = 1}) async {
-    final resp = await dio.get('/movie/top_rated', queryParameters: {'page': page});
+    final resp =
+        await dio.get('/movie/top_rated', queryParameters: {'page': page});
 
     return _jsonToMovies(resp.data);
   }
 
   @override
   Future<List<Movie>> getUpcoming({int page = 1}) async {
-    final resp = await dio.get('/movie/upcoming', queryParameters: {'page': page});
+    final resp =
+        await dio.get('/movie/upcoming', queryParameters: {'page': page});
 
     return _jsonToMovies(resp.data);
   }
