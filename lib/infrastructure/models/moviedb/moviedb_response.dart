@@ -15,16 +15,18 @@ class MovieDbResponse {
     required this.totalResults,
   });
 
-  factory MovieDbResponse.fromJson(Map<String, dynamic> json) => MovieDbResponse(
+  factory MovieDbResponse.fromJson(Map<String, dynamic> json) =>
+      MovieDbResponse(
         dates: json['dates'] != null ? Dates.fromJson(json["dates"]) : null,
         page: json["page"],
-        results: List<MovieMovieDB>.from(json["results"].map((x) => MovieMovieDB.fromJson(x))),
+        results: List<MovieMovieDB>.from(
+            json["results"].map((x) => MovieMovieDB.fromJson(x))),
         totalPages: json["total_pages"],
         totalResults: json["total_results"],
       );
 
   Map<String, dynamic> toJson() => {
-        "dates": dates == null ? null : dates!.toJson(),
+        "dates": dates?.toJson(),
         "page": page,
         "results": List<dynamic>.from(results.map((x) => x.toJson())),
         "total_pages": totalPages,
@@ -97,7 +99,8 @@ class MovieMovieDB {
         overview: json["overview"] ?? '',
         popularity: json["popularity"]?.toDouble() ?? 0,
         posterPath: json["poster_path"] ?? '',
-        releaseDate: json['release_date'] != null && json['release_date'].toString().isNotEmpty
+        releaseDate: json['release_date'] != null &&
+                json['release_date'].toString().isNotEmpty
             ? DateTime.parse(json["release_date"])
             : null,
         title: json["title"] ?? 'No title',
