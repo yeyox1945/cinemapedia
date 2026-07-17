@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cinemapedia/presentation/providers/providers.dart';
+import 'package:cinemapedia/ui/providers/providers.dart';
 
 final initialLoadingProvider = Provider<bool>((ref) {
   final step1 = ref.watch(nowPlayingMoviesProvider).isEmpty;

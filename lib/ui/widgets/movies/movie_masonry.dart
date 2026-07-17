@@ -1,5 +1,5 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
-import 'package:cinemapedia/presentation/widgets/widgets.dart';
+import 'package:cinemapedia/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -22,7 +22,8 @@ class _MovieMasonryState extends State<MovieMasonry> {
     scrollController.addListener(() {
       if (widget.loadNextPage == null) return;
 
-      if ((scrollController.position.pixels + 100) >= scrollController.position.maxScrollExtent) {
+      if ((scrollController.position.pixels + 100) >=
+          scrollController.position.maxScrollExtent) {
         widget.loadNextPage!();
       }
     });

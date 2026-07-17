@@ -1,5 +1,5 @@
-import 'package:cinemapedia/presentation/delegates/search_movie_delegate.dart';
-import 'package:cinemapedia/presentation/providers/providers.dart';
+import 'package:cinemapedia/ui/delegates/search_movie_delegate.dart';
+import 'package:cinemapedia/ui/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

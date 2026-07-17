@@ -28,6 +28,7 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   @override
   Widget build(BuildContext context) {
     final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
+    // ignore: avoid_print
     print(widget.heroPrefix);
 
     return Scaffold(
@@ -56,7 +57,8 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   }
 }
 
-final isFavoriteProvider = FutureProvider.family.autoDispose((ref, int movieId) {
+final isFavoriteProvider =
+    FutureProvider.family.autoDispose((ref, int movieId) {
   final localStorageRepository = ref.watch(localStorageRepositoryProvider);
   return localStorageRepository.isMovieFavorite(movieId);
 });
@@ -78,7 +80,9 @@ class _CustomSliverAppbar extends ConsumerWidget {
       actions: [
         IconButton(
           onPressed: () async {
-            await ref.read(favoriteMoviesProvider.notifier).toggleFavorite(movie);
+            await ref
+                .read(favoriteMoviesProvider.notifier)
+                .toggleFavorite(movie);
 
             ref.invalidate(isFavoriteProvider(movie.id));
           },
@@ -143,7 +147,8 @@ class _CustomGradient extends StatelessWidget {
     required this.end,
     required this.stops,
     required this.colors,
-  }) : assert(stops.length == colors.length, '"stops" and "colors" lengths must be the same');
+  }) : assert(stops.length == colors.length,
+            '"stops" and "colors" lengths must be the same');
 
   final AlignmentGeometry begin;
   final AlignmentGeometry end;

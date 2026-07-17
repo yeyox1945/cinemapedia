@@ -1,4 +1,4 @@
-import 'package:cinemapedia/presentation/widgets/widgets.dart';
+import 'package:cinemapedia/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
 import '../../views/views.dart';
@@ -13,7 +13,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   late PageController pageController;
 
   @override
@@ -52,7 +53,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
         controller: pageController,
         children: viewRoutes,
       ),
-      bottomNavigationBar: CustomBottomNavigation(currentIndex: widget.pageIndex),
+      bottomNavigationBar:
+          CustomBottomNavigation(currentIndex: widget.pageIndex),
     );
   }
 

@@ -1,7 +1,7 @@
-import 'package:cinemapedia/presentation/widgets/movies/movie_masonry.dart';
+import 'package:cinemapedia/ui/widgets/movies/movie_masonry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cinemapedia/presentation/providers/providers.dart';
+import 'package:cinemapedia/ui/providers/providers.dart';
 import 'package:go_router/go_router.dart';
 
 class FavoritesView extends ConsumerStatefulWidget {
@@ -11,7 +11,8 @@ class FavoritesView extends ConsumerStatefulWidget {
   FavoritesViewState createState() => FavoritesViewState();
 }
 
-class FavoritesViewState extends ConsumerState<FavoritesView> with AutomaticKeepAliveClientMixin {
+class FavoritesViewState extends ConsumerState<FavoritesView>
+    with AutomaticKeepAliveClientMixin {
   bool isLastPage = false;
   bool isLoading = false;
 
@@ -30,7 +31,8 @@ class FavoritesViewState extends ConsumerState<FavoritesView> with AutomaticKeep
     if (isLoading || isLastPage) return;
 
     isLoading = true;
-    final movies = await ref.read(favoriteMoviesProvider.notifier).loadNextPage();
+    final movies =
+        await ref.read(favoriteMoviesProvider.notifier).loadNextPage();
     isLoading = false;
 
     if (movies.isEmpty) isLastPage = true;
