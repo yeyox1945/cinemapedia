@@ -1,4 +1,5 @@
-import 'package:cinemapedia/data/mappers/movie_mapper.dart';
+import 'package:cinemapedia/data/extensions/movie_details_extension.dart';
+import 'package:cinemapedia/data/extensions/movie_extension.dart';
 import 'package:cinemapedia/data/models/moviedb/moviedb_response.dart';
 import 'package:dio/dio.dart';
 import 'package:cinemapedia/config/constants/environment.dart';
@@ -19,7 +20,7 @@ class MovieDbDatasource extends MoviesDatasource {
 
     final List<Movie> movies = movieDbResponse.results
         .where((movieDb) => movieDb.posterPath != 'no-poster')
-        .map((movieDb) => MovieMapper.movieDbToEntity(movieDb))
+        .map((movieDb) => movieDb.toEntity())
         .toList();
 
     return movies;
@@ -65,7 +66,7 @@ class MovieDbDatasource extends MoviesDatasource {
 
     final movieDetails = MovieDetails.fromJson(resp.data);
 
-    final Movie movie = MovieMapper.movieDetailsToEntity(movieDetails);
+    final Movie movie = movieDetails.toEntity();
 
     return movie;
   }
