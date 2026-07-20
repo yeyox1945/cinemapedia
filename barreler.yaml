@@ -29,11 +29,6 @@ dirs:
     disclaimer: true
     comments: # Optional: directory-specific comments
 
-  - path: lib/ui/views
-    name: # Optional: defaults to directory name ("lib")
-    disclaimer: true
-    comments: # Optional: directory-specific comments
-
   - path: lib/ui/widgets
     name: # Optional: defaults to directory name ("lib")
     disclaimer: true

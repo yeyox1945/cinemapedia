@@ -19,7 +19,8 @@ class MovieHorizontalListview extends StatefulWidget {
   final VoidCallback? loadNextPage;
 
   @override
-  State<MovieHorizontalListview> createState() => _MovieHorizontalListviewState();
+  State<MovieHorizontalListview> createState() =>
+      _MovieHorizontalListviewState();
 }
 
 class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
@@ -32,7 +33,8 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
     scrollController.addListener(() {
       if (widget.loadNextPage == null) return;
 
-      if (scrollController.position.pixels + 200 >= scrollController.position.maxScrollExtent) {
+      if (scrollController.position.pixels + 200 >=
+          scrollController.position.maxScrollExtent) {
         widget.loadNextPage!();
       }
     });
@@ -50,7 +52,8 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
       height: 350,
       child: Column(
         children: [
-          if (widget.title != null || widget.subTitle != null) _Title(title: widget.title, subTitle: widget.subTitle),
+          if (widget.title != null || widget.subTitle != null)
+            _Title(title: widget.title, subTitle: widget.subTitle),
           const SizedBox(height: 5),
           Expanded(
             child: ListView.builder(
@@ -108,8 +111,8 @@ class _Slide extends StatelessWidget {
                       );
                     }
                     return GestureDetector(
-                      onTap: () =>
-                          context.push('/home/0/movie/${movie.id}', extra: name != null ? Utils.slugify(name!) : null),
+                      onTap: () => context.push('/movies/${movie.id}',
+                          extra: name != null ? Utils.slugify(name!) : null),
                       child: FadeIn(child: child),
                     );
                   },
@@ -142,7 +145,8 @@ class _Slide extends StatelessWidget {
                 const SizedBox(width: 3),
                 Text(
                   '${movie.voteAverage}',
-                  style: textStyle.bodyMedium?.copyWith(color: Colors.yellow.shade800),
+                  style: textStyle.bodyMedium
+                      ?.copyWith(color: Colors.yellow.shade800),
                 ),
                 const Spacer(),
                 Text(
