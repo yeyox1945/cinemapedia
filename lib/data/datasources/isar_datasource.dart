@@ -13,7 +13,8 @@ class IsarDatasource extends LocalStorageDatasource {
   Future<Isar> openDB() async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.instanceNames.isEmpty) {
-      return await Isar.open([MovieSchema], directory: dir.path, inspector: true);
+      return await Isar.open([MovieSchema],
+          directory: dir.path, inspector: true);
     }
     return Future.value(Isar.getInstance());
   }
@@ -22,7 +23,8 @@ class IsarDatasource extends LocalStorageDatasource {
   Future<bool> isMovieFavorite(int movieId) async {
     final isar = await db;
 
-    final Movie? favoriteMovie = await isar.movies.filter().idEqualTo(movieId).findFirst();
+    final Movie? favoriteMovie =
+        await isar.movies.filter().idEqualTo(movieId).findFirst();
 
     return favoriteMovie != null;
   }
@@ -31,7 +33,8 @@ class IsarDatasource extends LocalStorageDatasource {
   Future<void> toggleFavorite(Movie movie) async {
     final isar = await db;
 
-    final favoriteMovie = await isar.movies.filter().idEqualTo(movie.id).findFirst();
+    final favoriteMovie =
+        await isar.movies.filter().idEqualTo(movie.id).findFirst();
 
     // Delete from db
     if (favoriteMovie != null) {

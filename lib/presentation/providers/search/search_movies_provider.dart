@@ -5,16 +5,19 @@ import '../providers.dart';
 
 final searchQueryProvider = StateProvider((ref) => '');
 
-final searchedMoviesProvider = StateNotifierProvider<SearchedMoviesNotifier, List<Movie>>((ref) {
+final searchedMoviesProvider =
+    StateNotifierProvider<SearchedMoviesNotifier, List<Movie>>((ref) {
   final movieRepository = ref.read(movieRepositoryProvider);
 
-  return SearchedMoviesNotifier(searchMovies: movieRepository.searchMovies, ref: ref);
+  return SearchedMoviesNotifier(
+      searchMovies: movieRepository.searchMovies, ref: ref);
 });
 
 typedef SearchMoviesCallback = Future<List<Movie>> Function(String query);
 
 class SearchedMoviesNotifier extends StateNotifier<List<Movie>> {
-  SearchedMoviesNotifier({required this.searchMovies, required this.ref}) : super([]);
+  SearchedMoviesNotifier({required this.searchMovies, required this.ref})
+      : super([]);
 
   final SearchMoviesCallback searchMovies;
   final Ref ref;

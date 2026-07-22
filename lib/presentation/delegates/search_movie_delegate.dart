@@ -136,7 +136,8 @@ class _MovieItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 child: Image.network(
                   movie.posterPath,
-                  loadingBuilder: (context, child, loadingProgress) => FadeIn(child: child),
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      FadeIn(child: child),
                 ),
               ),
             ),
@@ -169,7 +170,8 @@ class _MovieItem extends StatelessWidget {
                       const SizedBox(width: 5),
                       Text(
                         HumanFormats.number(movie.voteAverage, 1),
-                        style: textStyles.bodyMedium!.copyWith(color: Colors.yellow.shade900),
+                        style: textStyles.bodyMedium!
+                            .copyWith(color: Colors.yellow.shade900),
                       ),
                     ],
                   )
