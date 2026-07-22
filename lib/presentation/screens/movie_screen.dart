@@ -1,9 +1,15 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:cinemapedia/presentation/providers/actors/actors_by_movie_provider.dart'
+    show actorsByMovieProvider;
+import 'package:cinemapedia/presentation/providers/movies/movie_info_provider.dart'
+    show movieInfoProvider;
+import 'package:cinemapedia/presentation/providers/storage/favorite_movies_provider.dart'
+    show favoriteMoviesProvider;
+import 'package:cinemapedia/presentation/providers/storage/local_storage_provider.dart'
+    show localStorageRepositoryProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
-
-import '../providers/providers.dart';
 
 class MovieScreen extends ConsumerStatefulWidget {
   const MovieScreen({super.key, required this.movieId, this.heroPrefix});

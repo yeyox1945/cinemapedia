@@ -1,0 +1,33 @@
+
+build_runner:
+  (aliases): [b, br]
+  build: 
+    (description): Run build_runner builder
+    (command): dart run build_runner build
+    (aliases): [b]
+
+  watch:
+    (description): Run build_runner in watch mode
+    (command): dart run build_runner watch
+    (aliases): [w]
+
+barreler:
+  (aliases): [barrel]
+  build:
+    (description): Generate barreler files
+    (command): barreler build
+    (aliases): [b]
+  
+  watch:
+    (description): Run barreler in watch mode
+    (command): barreler watch
+    (aliases): [w]
+
+format: dart format .
+
+analyze: flutter analyze
+
+
+
+  
+  

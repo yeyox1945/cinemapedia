@@ -1,7 +1,7 @@
-import 'package:cinemapedia/ui/widgets/movies/movie_masonry.dart';
+import 'package:cinemapedia/presentation/widgets/movies/movie_masonry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cinemapedia/ui/providers/providers.dart';
+import 'package:cinemapedia/presentation/providers/providers.dart';
 import 'package:go_router/go_router.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {

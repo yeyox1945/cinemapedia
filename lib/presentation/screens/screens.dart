@@ -1,4 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND (re run -> barreler build to regenerate)
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 export 'favorites_screen.dart';
 export 'home_screen.dart';

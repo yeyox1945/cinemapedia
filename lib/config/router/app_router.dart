@@ -1,4 +1,4 @@
-import 'package:cinemapedia/ui/screens/screens.dart';
+import 'package:cinemapedia/presentation/screens/screens.dart';
 import 'package:flutter/material.dart' show NavigatorState, GlobalKey;
 import 'package:go_router/go_router.dart';
 

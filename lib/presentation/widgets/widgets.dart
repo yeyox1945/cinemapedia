@@ -1,4 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND (re run -> barreler build to regenerate)
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 export 'movies/movie_horizontal_listview.dart';
 export 'movies/movie_masonry.dart';

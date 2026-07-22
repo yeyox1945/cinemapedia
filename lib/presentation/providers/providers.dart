@@ -1,4 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND (re run -> barreler build to regenerate)
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 export 'actors/actors_by_movie_provider.dart';
 export 'actors/actors_repository_provider.dart';

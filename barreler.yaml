@@ -15,21 +15,21 @@ exclude:
 defaults:
   file_name: # defaults to directory name
   comments: # Optional copyright header
-  disclaimer: GENERATED CODE - DO NOT MODIFY BY HAND (re run -> barreler build to regenerate)
+  disclaimer: GENERATED CODE - DO NOT MODIFY BY HAND
 
 # Directory-specific configurations
 dirs:
-  - path: lib/ui/screens
+  - path: lib/presentation/screens
     name: # Optional: defaults to directory name ("lib")
     disclaimer: true
     comments: # Optional: directory-specific comments
 
-  - path: lib/ui/providers
+  - path: lib/presentation/providers
     name: # Optional: defaults to directory name ("lib")
     disclaimer: true
     comments: # Optional: directory-specific comments
 
-  - path: lib/ui/widgets
+  - path: lib/presentation/widgets
     name: # Optional: defaults to directory name ("lib")
     disclaimer: true
     comments: # Optional: directory-specific comments
