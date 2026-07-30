@@ -1,10 +1,12 @@
+import 'package:cinemapedia/domain/repositories/movies_repository.dart';
+import 'package:cinemapedia/main.dart' show getIt;
+import 'package:cinemapedia/presentation/blocs/movies/bloc/movies_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static const name = 'home';
@@ -13,35 +15,11 @@ class HomeScreen extends ConsumerStatefulWidget {
   HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeScreenState extends ConsumerState<HomeScreen>
+class HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-
-    ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
-    ref.read(popularMoviesProvider.notifier).loadNextPage();
-    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
-    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final initialLoading = ref.watch(initialLoadingProvider);
-
-    if (initialLoading) return const FullScreenLoader();
-
-    final slideShowMovies = ref.watch(moviesSlideshowProvider);
-    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
-    final popularMovies = ref.watch(popularMoviesProvider);
-    final topRatedMovies = ref.watch(topRatedMoviesProvider);
-    final upcomingMovies = ref.watch(upcomingMoviesProvider);
 
     return Scaffold(
       body: CustomScrollView(
@@ -59,42 +37,95 @@ class HomeScreenState extends ConsumerState<HomeScreen>
               (context, index) {
                 return Column(
                   children: [
-                    MoviesSlideshow(movies: slideShowMovies),
-                    MovieHorizontalListview(
-                      movies: nowPlayingMovies,
-                      title: 'En cines',
-                      subTitle: 'Lunes 20',
-                      loadNextPage: () {
-                        ref
-                            .read(nowPlayingMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
+                    BlocProvider(
+                      create: (context) =>
+                          MoviesBloc(repository: getIt<MoviesRepository>())
+                            ..add(NowPlaying()),
+                      child: BlocBuilder<MoviesBloc, MoviesState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            Initial() => const CircularProgressIndicator(),
+                            Success(:final movies) => Column(
+                                children: [
+                                  MoviesSlideshow(
+                                    movies: movies.take(6).toList(),
+                                  ),
+                                  MovieHorizontalListview(
+                                    movies: movies.sublist(6),
+                                    title: 'En cines',
+                                    subTitle: 'Lunes 20',
+                                    loadNextPage: () {
+                                      context
+                                          .read<MoviesBloc>()
+                                          .add(NowPlaying());
+                                    },
+                                  ),
+                                ],
+                              ),
+                            _ => const SizedBox.shrink(),
+                          };
+                        },
+                      ),
                     ),
-                    MovieHorizontalListview(
-                      movies: popularMovies,
-                      title: 'Populares',
-                      loadNextPage: () {
-                        ref.read(popularMoviesProvider.notifier).loadNextPage();
-                      },
+                    BlocProvider(
+                      create: (context) =>
+                          MoviesBloc(repository: getIt<MoviesRepository>())
+                            ..add(Popular()),
+                      child: BlocBuilder<MoviesBloc, MoviesState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            Initial() => const CircularProgressIndicator(),
+                            Success(:final movies) => MovieHorizontalListview(
+                                movies: movies,
+                                title: 'Populares',
+                                loadNextPage: () {
+                                  context.read<MoviesBloc>().add(Popular());
+                                },
+                              ),
+                            _ => const SizedBox.shrink(),
+                          };
+                        },
+                      ),
                     ),
-                    MovieHorizontalListview(
-                      movies: upcomingMovies,
-                      title: 'Proximamente',
-                      loadNextPage: () {
-                        ref
-                            .read(upcomingMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
+                    BlocProvider(
+                      create: (context) =>
+                          MoviesBloc(repository: getIt<MoviesRepository>())
+                            ..add(Upcoming()),
+                      child: BlocBuilder<MoviesBloc, MoviesState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            Initial() => const CircularProgressIndicator(),
+                            Success(:final movies) => MovieHorizontalListview(
+                                movies: movies,
+                                title: 'Proximamente',
+                                loadNextPage: () {
+                                  context.read<MoviesBloc>().add(Upcoming());
+                                },
+                              ),
+                            _ => const SizedBox.shrink(),
+                          };
+                        },
+                      ),
                     ),
-                    MovieHorizontalListview(
-                      movies: topRatedMovies,
-                      title: 'Mejor calificadas',
-                      subTitle: 'Desde siempre',
-                      loadNextPage: () {
-                        ref
-                            .read(topRatedMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
+                    BlocProvider(
+                      create: (context) =>
+                          MoviesBloc(repository: getIt<MoviesRepository>())
+                            ..add(TopRated()),
+                      child: BlocBuilder<MoviesBloc, MoviesState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            Initial() => const CircularProgressIndicator(),
+                            Success(:final movies) => MovieHorizontalListview(
+                                movies: movies,
+                                title: 'Mejor calificadas',
+                                loadNextPage: () {
+                                  context.read<MoviesBloc>().add(TopRated());
+                                },
+                              ),
+                            _ => const SizedBox.shrink(),
+                          };
+                        },
+                      ),
                     ),
                     const SizedBox(height: 10),
                   ],
