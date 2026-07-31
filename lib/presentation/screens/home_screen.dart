@@ -38,9 +38,10 @@ class HomeScreenState extends State<HomeScreen>
                 return Column(
                   children: [
                     BlocProvider(
-                      create: (context) =>
-                          MoviesBloc(repository: getIt<MoviesRepository>())
-                            ..add(NowPlaying()),
+                      create: (context) => MoviesBloc(
+                          key: 'nowPlaying',
+                          repository: getIt<MoviesRepository>())
+                        ..add(NowPlaying()),
                       child: BlocBuilder<MoviesBloc, MoviesState>(
                         builder: (context, state) {
                           return switch (state) {
@@ -68,9 +69,9 @@ class HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     BlocProvider(
-                      create: (context) =>
-                          MoviesBloc(repository: getIt<MoviesRepository>())
-                            ..add(Popular()),
+                      create: (context) => MoviesBloc(
+                          repository: getIt<MoviesRepository>(), key: 'popular')
+                        ..add(Popular()),
                       child: BlocBuilder<MoviesBloc, MoviesState>(
                         builder: (context, state) {
                           return switch (state) {
@@ -88,9 +89,10 @@ class HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     BlocProvider(
-                      create: (context) =>
-                          MoviesBloc(repository: getIt<MoviesRepository>())
-                            ..add(Upcoming()),
+                      create: (context) => MoviesBloc(
+                          repository: getIt<MoviesRepository>(),
+                          key: 'upcoming')
+                        ..add(Upcoming()),
                       child: BlocBuilder<MoviesBloc, MoviesState>(
                         builder: (context, state) {
                           return switch (state) {
@@ -108,9 +110,10 @@ class HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     BlocProvider(
-                      create: (context) =>
-                          MoviesBloc(repository: getIt<MoviesRepository>())
-                            ..add(TopRated()),
+                      create: (context) => MoviesBloc(
+                          repository: getIt<MoviesRepository>(),
+                          key: 'topRated')
+                        ..add(TopRated()),
                       child: BlocBuilder<MoviesBloc, MoviesState>(
                         builder: (context, state) {
                           return switch (state) {

@@ -1,7 +1,9 @@
 import 'package:isar/isar.dart';
+import 'package:json_annotation/json_annotation.dart';
 part 'movie.g.dart';
 
 @collection
+@JsonSerializable()
 class Movie {
   Id? isarId = Isar.autoIncrement;
   final bool adult;
@@ -34,4 +36,7 @@ class Movie {
       required this.video,
       required this.voteAverage,
       required this.voteCount});
+
+  factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
+  Map<String, dynamic> toJson() => _$MovieToJson(this);
 }

@@ -6,9 +6,9 @@ import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/domain/datasources/movies_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 
-import '../models/moviedb/movie_details_response.dart';
+import '../../models/moviedb/movie_details_response.dart';
 
-class MovieDbDatasource extends MoviesDatasource {
+class MoviesRemoteDatasource extends MoviesDatasource {
   final dio = Dio(
       BaseOptions(baseUrl: 'https://api.themoviedb.org/3', queryParameters: {
     'api_key': Environment.movieDbKey,
