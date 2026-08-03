@@ -21,123 +21,171 @@ class HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          const SliverAppBar(
-            floating: true,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.all(0),
-              title: CustomAppbar(),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Column(
-                  children: [
-                    BlocProvider(
-                      create: (context) => MoviesBloc(
-                          key: 'nowPlaying',
-                          repository: getIt<MoviesRepository>())
-                        ..add(NowPlaying()),
-                      child: BlocBuilder<MoviesBloc, MoviesState>(
-                        builder: (context, state) {
-                          return switch (state) {
-                            Initial() => const CircularProgressIndicator(),
-                            Success(:final movies) => Column(
-                                children: [
-                                  MoviesSlideshow(
-                                    movies: movies.take(6).toList(),
-                                  ),
-                                  MovieHorizontalListview(
-                                    movies: movies.sublist(6),
-                                    title: 'En cines',
-                                    subTitle: 'Lunes 20',
-                                    loadNextPage: () {
-                                      context
-                                          .read<MoviesBloc>()
-                                          .add(NowPlaying());
-                                    },
-                                  ),
-                                ],
-                              ),
-                            _ => const SizedBox.shrink(),
-                          };
-                        },
-                      ),
-                    ),
-                    BlocProvider(
-                      create: (context) => MoviesBloc(
-                          repository: getIt<MoviesRepository>(), key: 'popular')
-                        ..add(Popular()),
-                      child: BlocBuilder<MoviesBloc, MoviesState>(
-                        builder: (context, state) {
-                          return switch (state) {
-                            Initial() => const CircularProgressIndicator(),
-                            Success(:final movies) => MovieHorizontalListview(
-                                movies: movies,
-                                title: 'Populares',
-                                loadNextPage: () {
-                                  context.read<MoviesBloc>().add(Popular());
-                                },
-                              ),
-                            _ => const SizedBox.shrink(),
-                          };
-                        },
-                      ),
-                    ),
-                    BlocProvider(
-                      create: (context) => MoviesBloc(
-                          repository: getIt<MoviesRepository>(),
-                          key: 'upcoming')
-                        ..add(Upcoming()),
-                      child: BlocBuilder<MoviesBloc, MoviesState>(
-                        builder: (context, state) {
-                          return switch (state) {
-                            Initial() => const CircularProgressIndicator(),
-                            Success(:final movies) => MovieHorizontalListview(
-                                movies: movies,
-                                title: 'Proximamente',
-                                loadNextPage: () {
-                                  context.read<MoviesBloc>().add(Upcoming());
-                                },
-                              ),
-                            _ => const SizedBox.shrink(),
-                          };
-                        },
-                      ),
-                    ),
-                    BlocProvider(
-                      create: (context) => MoviesBloc(
-                          repository: getIt<MoviesRepository>(),
-                          key: 'topRated')
-                        ..add(TopRated()),
-                      child: BlocBuilder<MoviesBloc, MoviesState>(
-                        builder: (context, state) {
-                          return switch (state) {
-                            Initial() => const CircularProgressIndicator(),
-                            Success(:final movies) => MovieHorizontalListview(
-                                movies: movies,
-                                title: 'Mejor calificadas',
-                                loadNextPage: () {
-                                  context.read<MoviesBloc>().add(TopRated());
-                                },
-                              ),
-                            _ => const SizedBox.shrink(),
-                          };
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                );
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => NowPlayingMoviesBloc(
+            repository: getIt<MoviesRepository>(),
+          )..add(NowPlaying()),
+        ),
+        BlocProvider(
+          create: (context) => PopularMoviesBloc(
+            repository: getIt<MoviesRepository>(),
+          )..add(Popular()),
+        ),
+        BlocProvider(
+          create: (context) => UpcomingMoviesBloc(
+            repository: getIt<MoviesRepository>(),
+          )..add(Upcoming()),
+        ),
+        BlocProvider(
+          create: (context) => TopRatedMoviesBloc(
+            repository: getIt<MoviesRepository>(),
+          )..add(TopRated()),
+        ),
+      ],
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            body: RefreshIndicator(
+              onRefresh: () async {
+                final nowPlayingBloc = context.read<NowPlayingMoviesBloc>();
+                final popularBloc = context.read<PopularMoviesBloc>();
+                final upcomingBloc = context.read<UpcomingMoviesBloc>();
+                final topRatedBloc = context.read<TopRatedMoviesBloc>();
+
+                nowPlayingBloc.add(NowPlaying(refresh: true));
+                popularBloc.add(Popular(refresh: true));
+                upcomingBloc.add(Upcoming(refresh: true));
+                topRatedBloc.add(TopRated(refresh: true));
+
+                await Future.wait([
+                  nowPlayingBloc.stream.firstWhere(
+                    (state) => state is! Loading,
+                  ),
+                  popularBloc.stream.firstWhere(
+                    (state) => state is! Loading,
+                  ),
+                  upcomingBloc.stream.firstWhere(
+                    (state) => state is! Loading,
+                  ),
+                  topRatedBloc.stream.firstWhere(
+                    (state) => state is! Loading,
+                  ),
+                ]);
               },
-              childCount: 1,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                slivers: [
+                  const SliverAppBar(
+                    floating: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      titlePadding: EdgeInsets.all(0),
+                      title: CustomAppbar(),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return Column(
+                          children: [
+                            BlocBuilder<NowPlayingMoviesBloc, MoviesState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  Initial() =>
+                                    const CircularProgressIndicator(),
+                                  Success(:final movies) => Column(
+                                      children: [
+                                        MoviesSlideshow(
+                                          movies: movies.take(6).toList(),
+                                        ),
+                                        MovieHorizontalListview(
+                                          movies: movies.sublist(6),
+                                          title: 'En cines',
+                                          subTitle: 'Lunes 20',
+                                          loadNextPage: () {
+                                            context
+                                                .read<NowPlayingMoviesBloc>()
+                                                .add(NowPlaying());
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  _ => const SizedBox.shrink(),
+                                };
+                              },
+                            ),
+                            BlocBuilder<PopularMoviesBloc, MoviesState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  Initial() =>
+                                    const CircularProgressIndicator(),
+                                  Success(:final movies) =>
+                                    MovieHorizontalListview(
+                                      movies: movies,
+                                      title: 'Populares',
+                                      loadNextPage: () {
+                                        context
+                                            .read<PopularMoviesBloc>()
+                                            .add(Popular());
+                                      },
+                                    ),
+                                  _ => const SizedBox.shrink(),
+                                };
+                              },
+                            ),
+                            BlocBuilder<UpcomingMoviesBloc, MoviesState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  Initial() =>
+                                    const CircularProgressIndicator(),
+                                  Success(:final movies) =>
+                                    MovieHorizontalListview(
+                                      movies: movies,
+                                      title: 'Proximamente',
+                                      loadNextPage: () {
+                                        context
+                                            .read<UpcomingMoviesBloc>()
+                                            .add(Upcoming());
+                                      },
+                                    ),
+                                  _ => const SizedBox.shrink(),
+                                };
+                              },
+                            ),
+                            BlocBuilder<TopRatedMoviesBloc, MoviesState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  Initial() =>
+                                    const CircularProgressIndicator(),
+                                  Success(:final movies) =>
+                                    MovieHorizontalListview(
+                                      movies: movies,
+                                      title: 'Mejor calificadas',
+                                      loadNextPage: () {
+                                        context
+                                            .read<TopRatedMoviesBloc>()
+                                            .add(TopRated());
+                                      },
+                                    ),
+                                  _ => const SizedBox.shrink(),
+                                };
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        );
+                      },
+                      childCount: 1,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

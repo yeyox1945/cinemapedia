@@ -48,26 +48,23 @@ class MoviesBloc extends HydratedBloc<MoviesEvent, MoviesState> {
   }
 
   Future<void> _fetchMovies(
-      Endpoint endpoint, bool? refresh, Emitter<MoviesState> emit) async {
+      Endpoint endpoint, bool refresh, Emitter<MoviesState> emit) async {
     final currentState = state;
 
     // Guard against duplicate fetching or when max pages reached
-    if (refresh == false &&
+    if (!refresh &&
         currentState is Success &&
         (currentState.isLoading || currentState.hasReachedMax)) {
       return;
     }
 
     final (prevMovies, currentPage) = switch (currentState) {
-      Success(:final movies, :final page) when refresh == false => (
-          movies,
-          page
-        ),
+      Success(:final movies, :final page) when !refresh => (movies, page),
       _ => (<Movie>[], 1)
     };
 
     // Set loading indicator
-    if (currentState is Success) {
+    if (currentState is Success && !refresh) {
       emit(currentState.copyWith(isLoading: true));
     } else {
       emit(Loading());
@@ -96,7 +93,7 @@ class MoviesBloc extends HydratedBloc<MoviesEvent, MoviesState> {
       final updatedMovies = [...prevMovies, ...newMovies];
 
       // Clean cache
-      if (refresh == true) clear();
+      if (refresh) clear();
 
       emit(Success(
         movies: updatedMovies,
@@ -176,4 +173,20 @@ class MoviesBloc extends HydratedBloc<MoviesEvent, MoviesState> {
 
     return null;
   }
+}
+
+class NowPlayingMoviesBloc extends MoviesBloc {
+  NowPlayingMoviesBloc({required super.repository}) : super(key: 'nowPlaying');
+}
+
+class PopularMoviesBloc extends MoviesBloc {
+  PopularMoviesBloc({required super.repository}) : super(key: 'popular');
+}
+
+class UpcomingMoviesBloc extends MoviesBloc {
+  UpcomingMoviesBloc({required super.repository}) : super(key: 'upcoming');
+}
+
+class TopRatedMoviesBloc extends MoviesBloc {
+  TopRatedMoviesBloc({required super.repository}) : super(key: 'topRated');
 }

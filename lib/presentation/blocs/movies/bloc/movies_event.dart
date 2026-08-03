@@ -6,7 +6,7 @@ sealed class MoviesEvent {}
 class _Fetch extends MoviesEvent {
   _Fetch({this.refresh = false});
 
-  final bool? refresh;
+  final bool refresh;
 }
 
 final class NowPlaying extends _Fetch {
