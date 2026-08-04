@@ -6,11 +6,30 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/movie.dart';
 
-class CustomAppbar extends ConsumerWidget {
+class CustomAppbar extends ConsumerStatefulWidget {
   const CustomAppbar({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CustomAppbar> createState() => _CustomAppbarState();
+}
+
+class _CustomAppbarState extends ConsumerState<CustomAppbar> {
+  late TextEditingController _queryController;
+
+  @override
+  void initState() {
+    super.initState();
+    _queryController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
 
@@ -34,17 +53,16 @@ class CustomAppbar extends ConsumerWidget {
                   const Spacer(),
                   IconButton(
                       onPressed: () {
-                        final searchedMovies = ref.read(searchedMoviesProvider);
-                        final searchQuery = ref.read(searchQueryProvider);
-
                         showSearch<Movie?>(
-                          query: searchQuery,
+                          query: _queryController.text,
                           context: context,
                           delegate: SearchMovieDelegate(
-                            initialMovies: searchedMovies,
-                            searchMovies: ref
-                                .read(searchedMoviesProvider.notifier)
-                                .searchMoviesByQuery,
+                            initialMovies: [],
+                            searchMovies: (query) async {
+                              final movies =
+                                  ref.read(searchQueryProvider(query));
+                              return movies.value ?? [];
+                            },
                           ),
                         ).then((movie) {
                           if (!context.mounted) return;

@@ -1,11 +1,13 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final moviesSlideshowProvider = Provider<List<Movie>>((ref) {
-  final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
+part 'movies_slideshow_provider.g.dart';
 
-  if (nowPlayingMovies.isEmpty) return [];
+@riverpod
+Future<List<Movie>> moviesSlideshow(Ref ref) async {
+  final moviesState = ref.watch(moviesNotifierProvider(MovieType.nowPlaying));
 
-  return nowPlayingMovies.sublist(0, 6);
-});
+  return moviesState.value?.items.take(6).toList() ?? [];
+}

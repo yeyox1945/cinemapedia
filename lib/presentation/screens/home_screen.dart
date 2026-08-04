@@ -16,32 +16,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 class HomeScreenState extends ConsumerState<HomeScreen>
     with AutomaticKeepAliveClientMixin {
   @override
-  void initState() {
-    super.initState();
-
-    ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
-    ref.read(popularMoviesProvider.notifier).loadNextPage();
-    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
-    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
-    final initialLoading = ref.watch(initialLoadingProvider);
-
-    if (initialLoading) return const FullScreenLoader();
 
     final slideShowMovies = ref.watch(moviesSlideshowProvider);
-    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
-    final popularMovies = ref.watch(popularMoviesProvider);
-    final topRatedMovies = ref.watch(topRatedMoviesProvider);
-    final upcomingMovies = ref.watch(upcomingMoviesProvider);
+    final nowPlayingMovies =
+        ref.watch(moviesNotifierProvider(MovieType.nowPlaying));
+    final popularMovies = ref.watch(moviesNotifierProvider(MovieType.popular));
+    final topRatedMovies =
+        ref.watch(moviesNotifierProvider(MovieType.topRated));
+    final upcomingMovies =
+        ref.watch(moviesNotifierProvider(MovieType.upcoming));
 
     return Scaffold(
       body: CustomScrollView(
@@ -59,43 +44,68 @@ class HomeScreenState extends ConsumerState<HomeScreen>
               (context, index) {
                 return Column(
                   children: [
-                    MoviesSlideshow(movies: slideShowMovies),
-                    MovieHorizontalListview(
-                      movies: nowPlayingMovies,
-                      title: 'En cines',
-                      subTitle: 'Lunes 20',
-                      loadNextPage: () {
-                        ref
-                            .read(nowPlayingMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
-                    ),
-                    MovieHorizontalListview(
-                      movies: popularMovies,
-                      title: 'Populares',
-                      loadNextPage: () {
-                        ref.read(popularMoviesProvider.notifier).loadNextPage();
-                      },
-                    ),
-                    MovieHorizontalListview(
-                      movies: upcomingMovies,
-                      title: 'Proximamente',
-                      loadNextPage: () {
-                        ref
-                            .read(upcomingMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
-                    ),
-                    MovieHorizontalListview(
-                      movies: topRatedMovies,
-                      title: 'Mejor calificadas',
-                      subTitle: 'Desde siempre',
-                      loadNextPage: () {
-                        ref
-                            .read(topRatedMoviesProvider.notifier)
-                            .loadNextPage();
-                      },
-                    ),
+                    slideShowMovies.when(
+                        data: (movies) => MoviesSlideshow(movies: movies),
+                        loading: () => const CircularProgressIndicator(),
+                        error: (e, s) => const SizedBox()),
+                    nowPlayingMovies.when(
+                        data: (nowPlayingMovies) => MovieHorizontalListview(
+                              movies: nowPlayingMovies.items,
+                              title: 'En cines',
+                              subTitle: 'Lunes 20',
+                              loadNextPage: () {
+                                ref
+                                    .read(moviesNotifierProvider(
+                                            MovieType.nowPlaying)
+                                        .notifier)
+                                    .fetchMoreMovies();
+                              },
+                            ),
+                        error: (e, s) => const SizedBox(),
+                        loading: () => const CircularProgressIndicator()),
+                    popularMovies.when(
+                        data: (popularMovies) => MovieHorizontalListview(
+                              movies: popularMovies.items,
+                              title: 'Populares',
+                              loadNextPage: () {
+                                ref
+                                    .read(moviesNotifierProvider(
+                                            MovieType.popular)
+                                        .notifier)
+                                    .fetchMoreMovies();
+                              },
+                            ),
+                        error: (e, s) => const SizedBox(),
+                        loading: () => const CircularProgressIndicator()),
+                    upcomingMovies.when(
+                        data: (upcomingMovies) => MovieHorizontalListview(
+                              movies: upcomingMovies.items,
+                              title: 'Proximamente',
+                              loadNextPage: () {
+                                ref
+                                    .read(moviesNotifierProvider(
+                                            MovieType.upcoming)
+                                        .notifier)
+                                    .fetchMoreMovies();
+                              },
+                            ),
+                        error: (e, s) => const SizedBox(),
+                        loading: () => const CircularProgressIndicator()),
+                    topRatedMovies.when(
+                        data: (topRatedMovies) => MovieHorizontalListview(
+                              movies: topRatedMovies.items,
+                              title: 'Mejor calificadas',
+                              subTitle: 'Desde siempre',
+                              loadNextPage: () {
+                                ref
+                                    .read(moviesNotifierProvider(
+                                            MovieType.topRated)
+                                        .notifier)
+                                    .fetchMoreMovies();
+                              },
+                            ),
+                        error: (e, s) => const SizedBox(),
+                        loading: () => const CircularProgressIndicator()),
                     const SizedBox(height: 10),
                   ],
                 );

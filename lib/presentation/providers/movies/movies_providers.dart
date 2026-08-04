@@ -1,53 +1,69 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/models/paginated_state.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_repository_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final nowPlayingMoviesProvider =
-    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
-  final fetchMoreMovies = ref.watch(movieRepositoryProvider).getNowPlaying;
+part 'movies_providers.g.dart';
 
-  return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
-});
+enum MovieType { nowPlaying, popular, topRated, upcoming }
 
-final popularMoviesProvider =
-    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
-  final fetchMoreMovies = ref.watch(movieRepositoryProvider).getPopular;
+@riverpod
+class MoviesNotifier extends _$MoviesNotifier {
+  @override
+  Future<PaginatedState<Movie>> build(MovieType movieType) async {
+    _movieType = movieType;
+    final results = await _fetch(page: 1);
+    return PaginatedState(
+        items: results, page: 2, hasNextPage: true, isLoading: false);
+  }
 
-  return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
-});
+  late MovieType? _movieType;
 
-final topRatedMoviesProvider =
-    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
-  final fetchMoreMovies = ref.watch(movieRepositoryProvider).getTopRated;
+  Future<void> fetchMoreMovies() async {
+    assert(_movieType != null, 'Movie type must be provided');
 
-  return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
-});
+    final currentState = state.value;
 
-final upcomingMoviesProvider =
-    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
-  final fetchMoreMovies = ref.watch(movieRepositoryProvider).getUpcoming;
+    // Avoid duplicate requests
+    if (currentState == null ||
+        currentState.isLoading ||
+        !currentState.hasNextPage) {
+      return;
+    }
 
-  return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
-});
+    state = AsyncData(
+      currentState.copyWith(isLoading: true),
+    );
 
-typedef MovieCallback = Future<List<Movie>> Function({int page});
+    try {
+      final nextPage = currentState.page;
+      final results = await _fetch(page: nextPage + 1);
 
-class MoviesNotifier extends StateNotifier<List<Movie>> {
-  int currentPage = 0;
-  bool isLoading = false;
-  MovieCallback fetchMoreMovies;
+      state = AsyncData(
+        PaginatedState(
+            items: [...currentState.items, ...results],
+            page: nextPage + 1,
+            hasNextPage: results.isNotEmpty,
+            isLoading: false),
+      );
+    } catch (e) {
+      state = AsyncData(
+        currentState.copyWith(
+          isLoading: false,
+        ),
+      );
+    }
+  }
 
-  MoviesNotifier({required this.fetchMoreMovies}) : super([]);
+  Future<List<Movie>> _fetch({required int page}) async {
+    final moviesRepository = ref.read(movieRepositoryProvider);
 
-  Future<void> loadNextPage() async {
-    if (isLoading) return;
-
-    isLoading = true;
-    currentPage++;
-    final List<Movie> movies = await fetchMoreMovies(page: currentPage);
-    state = [...state, ...movies];
-
-    await Future.delayed(const Duration(milliseconds: 300));
-    isLoading = false;
+    return await switch (_movieType) {
+      MovieType.nowPlaying => moviesRepository.getNowPlaying,
+      MovieType.popular => moviesRepository.getPopular,
+      MovieType.topRated => moviesRepository.getTopRated,
+      MovieType.upcoming => moviesRepository.getUpcoming,
+      null => throw UnimplementedError(),
+    }(page: page);
   }
 }

@@ -1,8 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/presentation/providers/actors/actors_by_movie_provider.dart'
     show actorsByMovieProvider;
-import 'package:cinemapedia/presentation/providers/movies/movie_info_provider.dart'
-    show movieInfoProvider;
+import 'package:cinemapedia/presentation/providers/movies/movie_details_provider.dart'
+    show movieDetailsProvider;
 import 'package:cinemapedia/presentation/providers/storage/favorite_movies_provider.dart'
     show favoriteMoviesProvider;
 import 'package:cinemapedia/presentation/providers/storage/local_storage_provider.dart'
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 
-class MovieScreen extends ConsumerStatefulWidget {
+class MovieScreen extends ConsumerWidget {
   const MovieScreen({super.key, required this.movieId, this.heroPrefix});
 
   static const name = 'movie-screen';
@@ -19,46 +19,35 @@ class MovieScreen extends ConsumerStatefulWidget {
   final String? heroPrefix;
 
   @override
-  MovieScreenState createState() => MovieScreenState();
-}
-
-class MovieScreenState extends ConsumerState<MovieScreen> {
-  @override
-  void initState() {
-    super.initState();
-
-    ref.read(movieInfoProvider.notifier).loadMovie(widget.movieId);
-    ref.read(actorsByMovieProvider.notifier).loadActors(widget.movieId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final Movie? movie = ref.watch(movieInfoProvider)[widget.movieId];
-    // ignore: avoid_print
-    print(widget.heroPrefix);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final movie = ref.watch(movieDetailsProvider(movieId));
 
     return Scaffold(
-      body: movie == null
-          ? const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
-            )
-          : CustomScrollView(
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                _CustomSliverAppbar(movie: movie),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MovieDetails(
-                      movie: movie,
-                      heroPrefix: widget.heroPrefix,
-                    ),
-                    childCount: 1,
-                  ),
+      body: movie.when(data: (movie) {
+        return CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            _CustomSliverAppbar(movie: movie),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _MovieDetails(
+                  movie: movie,
+                  heroPrefix: heroPrefix,
                 ),
-              ],
+                childCount: 1,
+              ),
             ),
+          ],
+        );
+      }, error: (error, stackTrace) {
+        return const Center(child: Text('Error al cargar la película'));
+      }, loading: () {
+        return const Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+          ),
+        );
+      }),
     );
   }
 }
@@ -112,11 +101,6 @@ class _CustomSliverAppbar extends ConsumerWidget {
           vertical: 5,
         ),
         centerTitle: true,
-        // title: Text(
-        //   movie.title,
-        //   style: const TextStyle(fontSize: 20),
-        //   textAlign: TextAlign.start,
-        // ),
         background: Stack(
           children: [
             SizedBox.expand(
@@ -264,59 +248,63 @@ class _ActorsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final actorsByMovie = ref.watch(actorsByMovieProvider);
+    final actorsByMovie = ref.watch(actorsByMovieProvider(movieId));
 
-    if (actorsByMovie[movieId] == null) {
-      return const CircularProgressIndicator(strokeWidth: 2);
-    }
+    return actorsByMovie.when(data: (actors) {
+      return SizedBox(
+        height: 300,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: actors.length,
+          itemBuilder: (context, index) {
+            final actor = actors[index];
 
-    final actors = actorsByMovie[movieId]!;
-
-    return SizedBox(
-      height: 300,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: actors.length,
-        itemBuilder: (context, index) {
-          final actor = actors[index];
-
-          return Container(
-            padding: const EdgeInsets.all(8),
-            width: 135,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Actor photo
-                FadeInRight(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      actor.profilePath,
-                      height: 180,
-                      width: 135,
-                      fit: BoxFit.cover,
+            return Container(
+              padding: const EdgeInsets.all(8),
+              width: 135,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Actor photo
+                  FadeInRight(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        actor.profilePath,
+                        height: 180,
+                        width: 135,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                // Name
-                const SizedBox(height: 5),
-                Text(
-                  actor.name,
-                  maxLines: 2,
-                ),
-                Text(
-                  actor.character ?? '',
-                  maxLines: 2,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
+                  // Name
+                  const SizedBox(height: 5),
+                  Text(
+                    actor.name,
+                    maxLines: 2,
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+                  Text(
+                    actor.character ?? '',
+                    maxLines: 2,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }, error: (error, stackTrace) {
+      return const Center(
+        child: Text('Error al cargar los actores'),
+      );
+    }, loading: () {
+      return const Center(
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    });
   }
 }
