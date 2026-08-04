@@ -22,36 +22,8 @@ class MoviesNotifier extends _$MoviesNotifier {
   Future<void> fetchMoreMovies() async {
     assert(_movieType != null, 'Movie type must be provided');
 
-    final currentState = state.value;
-
-    // Avoid duplicate requests
-    if (currentState == null ||
-        currentState.isLoading ||
-        !currentState.hasNextPage) {
-      return;
-    }
-
-    state = AsyncData(
-      currentState.copyWith(isLoading: true),
-    );
-
-    try {
-      final nextPage = currentState.page;
-      final results = await _fetch(page: nextPage + 1);
-
-      state = AsyncData(
-        PaginatedState(
-            items: [...currentState.items, ...results],
-            page: nextPage + 1,
-            hasNextPage: results.isNotEmpty,
-            isLoading: false),
-      );
-    } catch (e) {
-      state = AsyncData(
-        currentState.copyWith(
-          isLoading: false,
-        ),
-      );
+    if (_movieType case final type?) {
+      ref.read(moviesNotifierProvider(type));
     }
   }
 

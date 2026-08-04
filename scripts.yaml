@@ -1,7 +1,6 @@
-
 build_runner:
   (aliases): [b, br]
-  build: 
+  build:
     (description): Run build_runner builder
     (command): dart run build_runner build
     (aliases): [b]
@@ -12,12 +11,12 @@ build_runner:
     (aliases): [w]
 
 barreler:
-  (aliases): [barrel]
+  (aliases): [barrel, barr]
   build:
     (description): Generate barreler files
     (command): barreler build
     (aliases): [b]
-  
+
   watch:
     (description): Run barreler in watch mode
     (command): barreler watch
@@ -26,8 +25,3 @@ barreler:
 format: dart format .
 
 analyze: flutter analyze
-
-
-
-  
-  

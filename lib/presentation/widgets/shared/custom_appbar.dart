@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/movie.dart';
 
+// TODO: search movies provider not working properly
+
 class CustomAppbar extends ConsumerStatefulWidget {
   const CustomAppbar({super.key});
 

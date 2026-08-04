@@ -2,18 +2,15 @@ import 'package:cinemapedia/data/extensions/movie_details_extension.dart';
 import 'package:cinemapedia/data/extensions/movie_extension.dart';
 import 'package:cinemapedia/data/models/moviedb/moviedb_response.dart';
 import 'package:dio/dio.dart';
-import 'package:cinemapedia/config/constants/environment.dart';
 import 'package:cinemapedia/domain/datasources/movies_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 
 import '../models/moviedb/movie_details_response.dart';
 
 class MovieDbDatasource extends MoviesDatasource {
-  final dio = Dio(
-      BaseOptions(baseUrl: 'https://api.themoviedb.org/3', queryParameters: {
-    'api_key': Environment.movieDbKey,
-    'language': 'es-MX',
-  }));
+  MovieDbDatasource({required this.dio});
+
+  final Dio dio;
 
   List<Movie> _jsonToMovies(Map<String, dynamic> json) {
     final movieDbResponse = MovieDbResponse.fromJson(json);
