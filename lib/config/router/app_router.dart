@@ -1,4 +1,5 @@
 import 'package:cinemapedia/presentation/screens/screens.dart';
+import 'package:cupertino_native_better/cupertino_native_better.dart';
 import 'package:flutter/material.dart' show NavigatorState, GlobalKey;
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,7 @@ final _shellNavigatorAKey = GlobalKey<NavigatorState>();
 final _shellNavigatorBKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
+  observers: [CNTabBarRouteObserver()],
   initialLocation: '/home',
   navigatorKey: _rootNavigatorKey,
   routes: [

@@ -1,3 +1,4 @@
+import 'package:cupertino_native_better/cupertino_native.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,20 +13,21 @@ class ScaffoldWithNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: navigationShell.currentIndex,
-          onTap: _onTap,
-          elevation: 0,
+      extendBody: true,
+      bottomNavigationBar: CNTabBar(
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_max),
+            CNTabBarItem(
               label: 'Inicio',
+              icon: CNSymbol('house'),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_outline),
-              label: 'Favoritos',
+            CNTabBarItem(
+              label: 'Favoritos', 
+              icon: CNSymbol('heart'),
             ),
-          ]),
+          ], 
+        currentIndex: navigationShell.currentIndex, 
+        onTap: _onTap,
+       ),
     );
   }
 }
